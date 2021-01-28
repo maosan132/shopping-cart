@@ -43,7 +43,7 @@ const addCart = e => {
   if (e.target.classList.contains('btn-dark')) {
     //console.log(e.target.parentElement)
     setCart(e.target.parentElement)
-  }
+  } 
   e.stopPropagation()
 }
 //add new products to cart object 
@@ -51,7 +51,13 @@ const setCart = obj => {
   //console.log(obj)
   const product = {
     id: obj.querySelector('.btn-dark').dataset.id,
-    title: obj.querySelector()
+    title: obj.querySelector('h5').textContent,
+    precio: obj.querySelector('p').textContent,
+    amount: 1,
   }
-  console.log(product);
+  if (cart.hasOwnProperty(product.id)) {
+    product.amount = cart[product.id].amount + 1
+  }
+  cart[product.id] = {...product}
+  console.log(cart);
 }
