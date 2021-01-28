@@ -1,7 +1,14 @@
 
-
+const cards = document.getElementById('cards')
 const items = document.getElementById('items')
+const footer = document.getElementById('footer')
+
+// templates
 const templateCard = document.getElementById('template-card').content
+const templateFooter = document.getElementById('template-footer').content
+const templateCart= document.getElementById('template-cart').content
+
+//fragments
 const fragment = document.createDocumentFragment()
 
 let cart = {} //items added to cart
@@ -9,7 +16,7 @@ let cart = {} //items added to cart
 document.addEventListener('DOMContentLoaded', () => fetchData())
 
 // listen to btn clicks
-items.addEventListener('click', e => {
+cards.addEventListener('click', e => {
   addCart(e)
 })
 
@@ -34,7 +41,7 @@ const pintarCards = data => {
     const clone = templateCard.cloneNode(true)
     fragment.appendChild(clone)
   })
-  items.appendChild(fragment)
+  cards.appendChild(fragment)
 }
 // Actions on btn clicks
 const addCart = e => {
@@ -52,12 +59,50 @@ const setCart = obj => {
   const product = {
     id: obj.querySelector('.btn-dark').dataset.id,
     title: obj.querySelector('h5').textContent,
-    precio: obj.querySelector('p').textContent,
+    price: obj.querySelector('p').textContent,
     amount: 1,
   }
   if (cart.hasOwnProperty(product.id)) {
     product.amount = cart[product.id].amount + 1
   }
   cart[product.id] = {...product}
-  console.log(cart);
+  //console.log(cart);
+  pintarCart()
+}
+
+const pintarCart = () => {
+  //console.log(cart);
+  items.innerHTML = ''
+  Object.values(cart).forEach(product => {
+    templateCart.querySelector('th').textContent = product.id
+    templateCart.querySelector('td').textContent = product.title
+    templateCart.querySelectorAll('td')[1].textContent = product.amount
+    templateCart.querySelector('.btn-info').dataset.id = product.id
+    templateCart.querySelector('.btn-danger').dataset.id = product.id
+    templateCart.querySelector('span').textContent = product.amount * product.price
+
+    const clone = templateCart.cloneNode(true)
+    fragment.appendChild(clone)
+  })
+  items.appendChild(fragment)
+  pintarFooter()
+
+}
+// this is something small so it doesn't require the use of fragment, it barely affects the reflow
+const pintarFooter = () => {
+  footer.innerHTML = ''
+  if (Object.keys.length === 0) {
+    footer.innerHTML = `
+    <th scope="row" colspan="5">Carrito vacío - comience a comprar!</th>
+    `
+  } 
+  
+  const nAmount = Object.values(cart).reduce( (mem, {amount}) => mem + amount, 0)
+  const nPrice = Object.values(cart).reduce((mem, {amount, price}) => mem + amount*price, 0)
+  //console.log(cart, nAmount, nPrecio);
+  templateFooter.querySelector('td').textContent = nAmount
+  templateFooter.querySelector('span').textContent = nPrice
+
+  const clone = templateFooter.cloneNode(true)
+  footer.appendChild(clone)
 }
