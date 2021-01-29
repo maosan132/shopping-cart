@@ -13,12 +13,18 @@ const fragment = document.createDocumentFragment()
 
 let cart = {} //items added to cart
 
-document.addEventListener('DOMContentLoaded', () => fetchData())
+document.addEventListener('DOMContentLoaded', () => {
+  fetchData()
+  if(localStorage.getItem('cart')){
+    cart = JSON.parse(localStorage.getItem('cart'))
+  } else {
 
-// listen to btn clicks
-cards.addEventListener('click', e => {
-  addCart(e)
+  }
 })
+
+// listen to btns
+cards.addEventListener('click', e => addCart(e))
+items.addEventListener('click', e => btnAction(e))
 
 const fetchData = async () => {
   try {
@@ -86,7 +92,7 @@ const pintarCart = () => {
   })
   items.appendChild(fragment)
   pintarFooter()
-
+  localStorage.setItem('cart', JSON.stringify(cart))
 }
 // this is something small so it doesn't require the use of fragment, it barely affects the reflow
 const pintarFooter = () => {
@@ -98,6 +104,7 @@ const pintarFooter = () => {
     //return
   } 
   
+  // Note tat we are using reduce with object destructuring as the iterator
   const nAmount = Object.values(cart).reduce( (mem, {amount}) => mem + amount, 0)
   const nPrice = Object.values(cart).reduce((mem, {amount, price}) => mem + amount*price, 0)
   //console.log(cart, nAmount, nPrecio);
@@ -114,3 +121,21 @@ const pintarFooter = () => {
     //console.log(carrito)
   })
 }
+
+const btnAction = e => {
+  //console.log(e.target)
+  if (e.target.classList.contains('btn-info')){
+    const product = cart[e.target.dataset.id]
+    product.amount ++
+    //cart[e.target.dataset.id] = {...product}
+    pintarCart()
+  } else if (e.target.classList.contains('btn-danger')){
+    const product = cart[e.target.dataset.id]
+    product.amount --
+    if (product.amount === 0) {
+      delete cart[e.target.dataset.id]
+    }
+  }
+    pintarCart()
+  e.stopPropagation()
+} 
